@@ -1,9 +1,15 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
+
 
 public class Enemy : MonoBehaviour
 {
+    public static Action OnEnemyDeath;
+    public HealthBar healthBar;
+    public int health = 100;
+    private int damage = 25;
     [SerializeField] public float moveSpeed = 2f;
     // Start is called before the first frame update
     [SerializeField] private GameObject player;
@@ -12,22 +18,35 @@ public class Enemy : MonoBehaviour
     {
         player = GameObject.FindGameObjectWithTag("Player");
         Bullet = GameObject.FindGameObjectWithTag("Bullet");
+        healthBar.SetMaxHealth(health);
     }
 
     // Update is called once per frame
     void Update()
     {
-        swarm();
+        Swarm();
     }
-    private void swarm()
+    private void Swarm()
     {
-        transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
+        PlayerScript playerScript = player.GetComponent<PlayerScript>();
+        bool playerhidden = playerScript.isStealth; // Check if the player is in stealth mode
+        if (player != null && !playerhidden)
+        {
+            transform.position = Vector2.MoveTowards(transform.position, player.transform.position, moveSpeed * Time.deltaTime);
+        }
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Bullet"))
         {
-            Destroy(gameObject);
+            health -= damage;
+
+            healthBar.SetHealth(health);
+            if (health <= 0)
+            {
+                Destroy(gameObject);
+                OnEnemyDeath?.Invoke();
+            }
         }
     }
 }
