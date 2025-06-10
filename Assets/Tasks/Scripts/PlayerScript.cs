@@ -106,13 +106,6 @@ public class PlayerScript : MonoBehaviour
         yield return new WaitForSeconds(dashingCooldown);
         canDash = true;
     }
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("enemy"))
-        {
-            TakeDamage(10);
-        }
-    }
 
     public void TakeDamage(int damage)
     {
